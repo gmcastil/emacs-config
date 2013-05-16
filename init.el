@@ -7,9 +7,9 @@
 ;; Emacs 24 calls 'package-initialize to load all installed packages, but
 ;; only after the entire init file is loaded.
 (load "ui-config.el")
-;; (load "package-manager.el")
+(load "package-manager.el")
 ;; (load "erc-config.el")
-;; (load "slime-config.el")
+(load "slime-config.el")
 ;; (load "python-config.el")
-;; (load "modeline-config.el")
+(load "modeline-config.el")
 ;; (load "pyflakes-config.el")
