@@ -11,5 +11,5 @@
 ;; (load "erc-config.el")
 (load "slime-config.el")
 ;; (load "python-config.el")
-(load "modeline-config.el")
+(load "mode-line-config.el")
 ;; (load "pyflakes-config.el")

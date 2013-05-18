@@ -10,6 +10,9 @@
 ;;   (load-theme 'nzenburn t)
 ;;   (add-hook 'after-init-hook 'my-load-theme))
 
+;;(add-hook 'after-init-hook
+;;	  #'(lambda () (load "mode-line-config.el")))
+
 ;;;; Set faces
 (set-face-attribute 'default nil
 		    :family "Inconsolata" :height 160)
