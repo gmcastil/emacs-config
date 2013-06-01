@@ -12,8 +12,11 @@
 ;;       This would include things like REPL, shells, Dired, etc.  The list
 ;;       is probably rather long
 ;;
-;; TODO Fix the mode-line-read-only-face so that the top and bottom of the box
-;; match the rest of the mode-line
+;; TODO: Fix the mode-line-read-only-face so that the top and bottom of the box
+;;       match the rest of the mode-line
+;;
+;; TODO: Switching on mode-line-modified-face changes the thickness of the
+;;       mode-line
 ;;
 
 (setq-default mode-line-format
@@ -28,15 +31,17 @@
 		;; A few empty space
 		"    "
 
-		;; Read-only or modified status
-		(:eval (cond (buffer-read-only
-			      (propertize " RO "
-					  'face 'mode-line-read-only-face))
+		;; Show buffer status
+		(:eval (cond ((equal major-mode 'erc-mode)
+			      ("    "))
 			     ((buffer-modified-p)
 			      (propertize " ** "
 					  'face 'mode-line-modified-face))
+			     (buffer-read-only
+			      (propertize " RO "
+					  'face 'mode-line-read-only-face))
 			     (t "    ")))
-		
+
 		;; More empty space
 		"    "
 

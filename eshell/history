@@ -1,0 +1,128 @@
+exit
+cd
+cd .mutt
+ls
+ls -l
+mkdir -p cache
+touch cache/[headers,bodies]
+cd cache/
+ls
+rm \[headers,bodies\]
+touch {headers,bodies}
+ll
+ls
+ls -l
+rm headers,bodies:\ command\ not\ found 
+touch headers
+touch bodies
+cd ..
+touch certificates
+pwd
+cd ~/.mutt/mutt-colors-solarized/
+ls
+ll
+ls -al
+pwd
+cd .emacs.d/
+ls
+cd site-lisp/
+ls
+cd ..
+mkdir themes
+cd themes/
+mv ~/hacking/solarized/emacs-colors-solarized ./
+ll
+ls -l
+cd emacs-colors-solarized/
+ls
+ll
+ls
+ls -l
+cd
+ls -la
+ps aux | grep -s emacs
+ps aux
+ps aux | grep -i emacs
+cd /Applications/Emacs.app/
+ls
+c Contents/
+cd Contents/
+ls
+cd MacOS/
+ls
+ll
+cd bin
+ll
+ls -l
+ls -al
+cd
+cd drop
+ls
+cd Dropbox/
+ls
+mkdir -p medical\ school\ admissions/application/essays
+mkdir -p medical\ school\ admissions/application/essays/work\ experiences
+cd medical\ school\ admissions/
+ls
+cd application/essays/work\ experiences/
+ll
+cd ../../../transcripts/
+cd
+cd Dropbox/committee\ letter\ application/
+ll
+ls
+cd essays/
+ls
+man offlineimap
+man sh
+man sh
+cd
+ls
+cd offlineimap/
+ls
+less setup.py 
+cd docs
+ll
+ls
+less MANUAL.rst 
+cp -nv /usr/local/Cellar/offline-imap/6.5.4/offlineimap.conf.minimal ~/.offlineimaprc 
+ll
+ls
+cat .offlineimaprc 
+rm .offlineimaprc 
+cp -nv /usr/local/Cellar/offline-imap/6.5.4/offlineimap.conf.minimal ~/.offlineimaprc
+ls
+cp -n /usr/local/Cellar/offline-imap/6.5.4/offlineimap.conf.minimal ~/.offlineimaprc
+ls .o*
+cp -n /usr/local/Cellar/offline-imap/6.5.4/offlineimap.conf.minimal ./
+cd /usr/local/Cellar/offline-imap/6.5.4/
+ls
+less README 
+which offlineimap
+. .bash_profile 
+source .bash_profile 
+/usr/local/Cellar/offline-imap/6.5.4/bin/offlineimap 
+ll
+ls
+ls -al
+ls
+ls -al
+ls -al
+touch alias
+mkdir -p cache
+touch cache/headers
+touch cache/bodies
+touch certificates
+touch mailcap
+touch temp
+touch sig
+ls
+ls -l
+mutt
+/usr/local/bin/mutt
+rm temp
+mkdir -p temp
+cd
+cd bin
+ls
+ls -l

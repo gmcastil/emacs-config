@@ -8,8 +8,12 @@
 ;; only after the entire init file is loaded.
 (load "ui-config.el")
 (load "package-manager.el")
-;; (load "erc-config.el")
+(load "org-mode-config.el")
+(load "erc-config.el")
 (load "slime-config.el")
 ;; (load "python-config.el")
-(load "mode-line-config.el")
-;; (load "pyflakes-config.el")
+(load "pyflakes-config.el")
+(load "site-modes.el")
+(load "text-config.el")
+
+(server-start)

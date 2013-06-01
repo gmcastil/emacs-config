@@ -1,24 +1,3 @@
-;;;; Configure themes
-;;
-;; There are a couple of ways to do this.  The first would be to pass a lambda
-;; expression as a function to run after init files are loaded
-(add-hook 'after-init-hook
-	  #'(lambda () (load-theme 'nzenburn t)))
-;; The second way is to define a function explicitly and pass that to the
-;; add-hook function like this:
-;; (defun my-load-theme ()
-;;   (load-theme 'nzenburn t)
-;;   (add-hook 'after-init-hook 'my-load-theme))
-
-;;(add-hook 'after-init-hook
-;;	  #'(lambda () (load "mode-line-config.el")))
-
-;;;; Set faces
-(set-face-attribute 'default nil
-		    :family "Inconsolata" :height 160)
-(set-face-attribute 'font-lock-comment-face nil
-		    :family "Inconsolata" :height 140)
-
 ;;;; Clean the frame
 (setq inhibit-splash-screen t)
 (tool-bar-mode -1)
@@ -26,6 +5,22 @@
 (mouse-wheel-mode t)
 (set-scroll-bar-mode nil)
 (set-fringe-mode 0)
+
+;;;; Configure themes
+;;
+;; Using a lambda function for this could be problematic, if I were reloading
+;; my init file
+(defun my-load-theme ()
+  (load-theme 'solarized-dark t)
+  ;; Once the theme is loaded, reconfigure the mode-line as needed
+  (load "mode-line-config.el"))
+(add-hook 'after-init-hook 'my-load-theme)
+
+;;;; Set faces
+(set-face-attribute 'default nil
+		    :family "Inconsolata" :height 160)
+(set-face-attribute 'font-lock-comment-face nil
+		    :family "Inconsolata" :height 140)
 
 ;;;; UI Functions
 
@@ -46,3 +41,4 @@
 
 ;;;; Keybinds and hooks
 (global-set-key (kbd "C-x C-c") 'ask-before-closing)
+(global-set-key [C-tab] 'other-window)
