@@ -20,8 +20,8 @@
 (load "ac-config.el")
 (load "ui-config.el")
 (load "python-config.el")
+(load "erc-config.el")
 ;;(load "org-mode-config.el")
-;;(load "erc-config.el")
 ;;(load "text-config.el")
 
 (server-start)
