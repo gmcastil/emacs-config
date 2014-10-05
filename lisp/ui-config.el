@@ -17,6 +17,11 @@
 (set-scroll-bar-mode nil)
 (set-fringe-mode 0)
 
+
+;;;; Some UI specific packages
+(require 'ido)
+(ido-mode t)
+
 ;;;; Set faces
 (set-face-attribute 'default nil
 		    :family "Anonymous Pro" :height 120)
