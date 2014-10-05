@@ -12,8 +12,6 @@
   (setq erc-autojoin-channels-alist
 	'((".*\\.freenode.net" "#emacs" "#physics" "#python" "#math" "#R" "#lisp")))
 
-  ;;(setq erc-nick "gmcastil" erc-pass "IRC_314*")
-
   (erc-track-mode t)
   (setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
 				  "324" "329" "332" "333" "343" "477"))
