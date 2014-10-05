@@ -9,16 +9,16 @@
 (require 'jedi)
 ;; Need to run "pip install --user jedi" and "pip install --user epc" to get the
 ;; Python side of the library to work right
-(setq jedi:server-command
-      '("python2" "/home/castillo/.emacs.d/elpa/jedi-20140321.1323/jediepcserver.py"))
-
 (add-hook 'python-mode-hook
 	  (lambda ()
 	    (jedi:setup)
-	    (jedi:ac-setup)
+	    (jedi:ac-setup)))
+
+(add-hook 'jedi-mode-hook
+	  (lambda ()
+	    (setq jedi:tooltip-method nil)
 	    (local-set-key "\C-cd" 'jedi:show-doc)
-	    (local-set-key (kbd "M-SPC") 'jedi:complete)
-	    (local-set-key (kbd "M-.") 'jedi:goto-definition)))
+	    (local-set-key (kbd "M-SPC") 'jedi:goto-definition)))
 
 (defun flymake-python-init ()
   (let* ((temp-file (flymake-init-create-temp-buffer-copy
