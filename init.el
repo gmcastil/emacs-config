@@ -21,6 +21,7 @@
 (load "ui-config.el")
 (load "python-config.el")
 (load "erc-config.el")
+(load "racket-config.el")
 ;;(load "org-mode-config.el")
 ;;(load "text-config.el")
 
