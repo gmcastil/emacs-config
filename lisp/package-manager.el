@@ -13,6 +13,7 @@
 
 ;; make more packages available with the package installer
 (setq to-install
-      '(python-mode magit yasnippet jedi auto-complete autopair find-file-in-repository flycheck))
+      '(ac-geiser geiser flymake-racket racket-mode magit yasnippet jedi
+		  auto-complete autopair find-file-in-repository flycheck))
 
 (mapc 'install-if-needed to-install)
