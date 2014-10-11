@@ -1,7 +1,6 @@
-;;;; Python mode settings
-(require 'python-mode)
+;;;; python-config.el -- Summary
+
 (add-to-list 'auto-mode-alist '("\\.py$" . python-mode))
-(setq py-electric-colon-active t)
 (add-hook 'python-mode-hook 'autopair-mode)
 (add-hook 'python-mode-hook 'yas-minor-mode)
 
@@ -45,9 +44,5 @@
       (if help (message "%s" help)))))
 
 (add-hook 'post-command-hook 'ca-flymake-show-help)
-
-(add-to-list 'flymake-allowed-file-name-masks
-	     '("\\.py\\'" flymake-python-init))
-
 (add-hook 'python-mode-hook 'flymake-activate)
 (add-hook 'python-mode-hook 'auto-complete-mode)
