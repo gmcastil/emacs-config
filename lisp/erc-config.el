@@ -38,4 +38,5 @@
   (if (get-buffer "irc.freenode.net:6667")
       (erc-track-switch-buffer 1)
     (when (y-or-n-p "Start ERC? ")
-      (erc :server "irc.freenode.net" :port 6667))))
+      (erc :server "irc.freenode.net" :port 6667
+	   :nick "nickname" :password "password"))))
