@@ -22,6 +22,7 @@
 (load "python-config.el")
 (load "erc-config.el")
 (load "racket-config.el")
+(load "system-config.el")
 ;;(load "org-mode-config.el")
 ;;(load "text-config.el")
 

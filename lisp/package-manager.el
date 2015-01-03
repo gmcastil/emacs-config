@@ -11,9 +11,10 @@
   (unless (package-installed-p package)
     (package-install package)))
 
-;; make more packages available with the package installer
+;; Make more packages available with the package installer
 (setq to-install
       '(ac-geiser geiser flymake-racket racket-mode magit yasnippet jedi
-		  auto-complete autopair find-file-in-repository flycheck))
+		  auto-complete autopair find-file-in-repository flycheck
+		  exec-path-from-shell))
 
 (mapc 'install-if-needed to-install)
