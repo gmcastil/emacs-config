@@ -18,5 +18,5 @@
 (setq geiser-active-implementations '(racket))
 
 ;; Need to specify the location of the racket REPL binary on Mac OS
-(when (memq window-system ('mac ns))
+(when (memq window-system '(mac ns))
   (setq geiser-racket-binary "/Applications/Racket v6.1.1/bin/racket"))
