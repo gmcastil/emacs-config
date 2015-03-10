@@ -23,6 +23,7 @@
 (load "erc-config.el")
 (load "racket-config.el")
 (load "system-config.el")
+(load "latex-config.el")
 ;;(load "org-mode-config.el")
 ;;(load "text-config.el")
 
