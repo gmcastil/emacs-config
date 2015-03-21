@@ -47,7 +47,7 @@
   (load "mode-line-config.el"))
 
 ;;;; Keybinds and hooks
-(global-set-key (kbd "C-x C-c") 'ask-before-closing)                            
+(global-set-key (kbd "C-x C-c") 'ask-before-closing)
 (global-set-key [C-tab] 'other-window)
 
 (add-hook 'text-mode-hook 'set-auto-fill-mode-on)
