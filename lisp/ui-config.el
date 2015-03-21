@@ -1,14 +1,6 @@
 ;;;; Configure themes
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
-;; Using a lambda function for this could be problematic, if I were reloading
-;; my init file
-(defun my-load-theme ()
-  (load-theme 'solarized-dark t)
-  ;; Once the theme is loaded, reconfigure the mode-line as needed
-  (load "mode-line-config.el"))
-(add-hook 'after-init-hook 'my-load-theme)
-
 ;;;; Clean the frame
 (setq inhibit-splash-screen t)
 (tool-bar-mode -1)
@@ -17,6 +9,10 @@
 (set-scroll-bar-mode nil)
 (set-fringe-mode 0)
 
+;; Setting ring-bell-function to non-nil calls this function to ring the bell
+(setq ring-bell-function
+      (lambda ()
+	(message "Beep")))
 
 ;;;; Some UI specific packages
 (require 'ido)
@@ -40,11 +36,19 @@
         (save-buffers-kill-emacs))
     (message "Cancelled exit")))
 
-;; Setting ring-bell-function to non-nil calls this function to ring the bell
-(setq ring-bell-function
-      (lambda ()
-	(message "Beep")))
+(defun set-auto-fill-mode-on ()
+  "Turns on auto-fill-mode and sets the columns to fill at"
+  (setq fill-column 79)
+  (turn-on-auto-fill))
+
+(defun my-load-theme ()
+  "Load a custom theme and then reset the mode-line"
+  (load-theme 'solarized-dark t)
+  (load "mode-line-config.el"))
 
 ;;;; Keybinds and hooks
 (global-set-key (kbd "C-x C-c") 'ask-before-closing)                            
 (global-set-key [C-tab] 'other-window)
+
+(add-hook 'text-mode-hook 'set-auto-fill-mode-on)
+(add-hook 'after-init-hook 'my-load-theme)
