@@ -15,6 +15,7 @@
 (setq to-install
       '(ac-geiser geiser flymake-racket racket-mode magit yasnippet jedi
 		  auto-complete autopair find-file-in-repository flycheck
-		  exec-path-from-shell auctex erc-hl-nicks ac-math org-ac))
+		  exec-path-from-shell auctex erc-hl-nicks ac-math org-ac
+		  outline-magic))
 
 (mapc 'install-if-needed to-install)
