@@ -46,3 +46,4 @@
 (add-hook 'post-command-hook 'ca-flymake-show-help)
 (add-hook 'python-mode-hook 'flymake-activate)
 (add-hook 'python-mode-hook 'auto-complete-mode)
+(add-hook 'prog-mode-hook 'outline-minor-mode)

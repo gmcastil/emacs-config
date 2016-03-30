@@ -17,6 +17,7 @@
 (load "system-config.el")
 (load "latex-config.el")
 (load "org-config.el")
+(load "outline-config.el")
 ;;(load "text-config.el")
 
 (require 'magit)
