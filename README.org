@@ -1,0 +1,7 @@
+#+TITLE: Emacs Configuration
+#+AUTHOR: George Castillo
+
+This is the Emacs setup I use on multiple machines and platforms, both at home
+and at work.  It is heavily based on the work of Daniel Mai and a web
+presentation on using org-mode and use-package to organize an init
+configuration.
