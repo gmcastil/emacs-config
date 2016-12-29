@@ -2,6 +2,6 @@
 #+AUTHOR: George Castillo
 
 This is the Emacs setup I use on multiple machines and platforms, both at home
-and at work.  It is heavily based on the work of Daniel Mai and a web
+and at work.  It is heavily based on the work of [[https://github.com/danielmai/.emacs.d][Daniel Mai]] and a web
 presentation on using org-mode and use-package to organize an init
-configuration.
+configuration.  The video for this can be found [[https://www.youtube.com/watch?v=VIuOwIBL-ZU][here]].
