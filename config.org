@@ -1,0 +1,187 @@
+#+TITLE: Emacs Configuration
+#+AUTHOR: George Castillo
+
+Every so often, I try to take some time to organize my Emacs
+configuration and been more or less met with mixed results.  I
+recently ran across the idea of using org-mode to organize virtually
+all of it, and I thought that was a fantastic idea.  I use org-mode
+for managing nearly everything else as it is, so it makes total sense
+to use it for keeping my Emacs configuration from getting out of
+control.
+
+* Customize Settings
+
+Set up a file for custom settings instead of saving customize settings in
+[[file:init.el][init.el]].  This seems to happen inadvertantly, so putting it somewhere else is a
+good idea.
+
+#+BEGIN_SRC emacs-lisp
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (if (file-exists-p custom-file)
+      (load custom-file))
+#+END_SRC
+
+* Theme
+** Solarized Theme
+I have been using the [[http://ethanschoonover.com/solarized][Solarized theme]] for as long as I can remember.  It has
+both light and dark variants and eye fatigue has never been a problem
+for me.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package solarized-theme
+    :if (window-system)
+    :ensure t
+    :init
+    (load-theme 'solarized-dark t))
+#+END_SRC
+
+** Convenient Theme Functions
+
+#+BEGIN_SRC emacs-lisp
+  (defun switch-theme (theme)
+    "Disables any currently active themes and loads THEME."
+    ;; This interactive call is taken from `load-theme'
+    (interactive
+     (list
+      (intern (completing-read "Load custom theme: "
+                               (mapc 'symbol-name
+                                     (custom-available-themes))))))
+    (let ((enabled-themes custom-enabled-themes))
+      (mapc #'disable-theme custom-enabled-themes)
+      (load-theme theme t)))
+#+END_SRC
+* Font
+
+Inconsolata is a good monospace font for programmers and anyone else using a
+text editor a significant portion of their time.  The official release is at
+[[https://fonts.google.com/specimen/Inconsolata][Google fonts]] and official upstream is on [[https://github.com/google/fonts/tree/master/ofl/inconsolata][github]].  I also use a slightly
+smaller face size for comments, which I find makes it easier for my eye to
+slide over them without sacrificing readability.
+
+#+BEGIN_SRC emacs-lisp
+  (set-face-attribute 'default nil
+                      :family "Inconsolata" :height 120)
+  (set-face-attribute 'font-lock-comment-face nil
+                      :family "Inconsolata" :height 110)
+#+END_SRC
+
+* Defaults
+
+Much of this was lifted from [[https://github.com/danielmai/.emacs.d][Daniel Mai]].
+
+#+BEGIN_SRC emacs-lisp
+  ;; Keep all backup and auto-save files in one directory
+  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+  (setq version-control t)
+  (setq kept-old-versions 50)
+  (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
+
+  ;; UTF-8 encoding
+  (setq locale-coding-system 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+  (setq-default indent-tabs-mode nil)
+
+  ;; Turn off blinking cursors
+  (blink-cursor-mode -1)
+
+  ;; Deal with whitespace and such here
+  (setq-default indent-tabs-mode nil)
+  (setq-default indicate-empty-lines t)
+
+  ;; Don't count two spaces after a period as the end of a sentence.
+  ;; Just one space is needed.
+  (setq sentence-end-double-space nil)
+
+  ;; Delete the region when typing - not sure if I like this
+  (delete-selection-mode t)
+
+  ;; Some intelligent settings for columsn and parenthesis
+  (show-paren-mode t)
+
+  ;; Visual line mode should be the default, and we will enable auto-fill mode on
+  ;; a mode by mode basis
+  (global-visual-line-mode)
+  (diminish 'visual-line-mode)
+
+  ;; The default method for this is inane - but modeline might fix it
+  (setq uniquify-buffer-name-style 'forward)
+
+  ;; Shut the hell up
+  (setq visible-bell t)
+
+  ;; I hate the default quit behavior
+  (defun ask-before-closing ()
+    "Ask whether or not to close, and then close if y was pressed"
+    (interactive)
+    (if (y-or-n-p (format "Are you sure you want to exit Emacs? "))
+        (if (< emacs-major-version 22)
+            (save-buffers-kill-terminal)
+          (save-buffers-kill-emacs))
+      (message "Cancelled exit")))
+
+#+END_SRC
+
+This fixes the aggravating problem of Mac OS not providing Emacs's
+shell with the usual one
+
+#+BEGIN_SRC emacs-lisp
+  (when (string-equal system-type "darwin")
+    (use-package exec-path-from-shell
+      :if (memq window-system '(mac ns))
+      :ensure t
+      :init
+      (exec-path-from-shell-initialize)))
+#+END_SRC
+
+* Global Keybinds
+
+Having rewritten the function used for quitting, we remap the keybind for
+quitting Emacs
+
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-x C-c") 'ask-before-closing)
+#+END_SRC
+
+** Org-Mode
+
+Also, here are some global key bindings that integrate really well with
+org-mode
+
+#+BEGIN_SRC emacs-lisp
+  (bind-key "C-c l" 'org-store-link)
+  (bind-key "C-c c" 'org-capture)
+  (bind-key "C-c a" 'org-agenda)
+#+END_SRC
+
+** Window
+
+Convenient keybindings to resize windows.
+
+#+BEGIN_SRC emacs-lisp
+  (bind-key "s-C-<left>"  'shrink-window-horizontally)
+  (bind-key "s-C-<right>" 'enlarge-window-horizontally)
+  (bind-key "s-C-<down>"  'shrink-window)
+  (bind-key "s-C-<up>"    'enlarge-window)
+#+END_SRC
+
+This is a nice clever way to split and switch to the other window at the same
+time.  Not sure why this isn't default behavior.
+
+#+BEGIN_SRC emacs-lisp
+  (defun vsplit-other-window ()
+    "Splits the window vertically and switches to that window."
+    (interactive)
+    (split-window-vertically)
+    (other-window 1 nil))
+  (defun hsplit-other-window ()
+    "Splits the window horizontally and switches to that window."
+    (interactive)
+    (split-window-horizontally)
+    (other-window 1 nil))
+
+  (bind-key "C-x 2" 'vsplit-other-window)
+  (bind-key "C-x 3" 'hsplit-other-window)
+#+END_SRC
