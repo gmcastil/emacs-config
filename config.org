@@ -16,41 +16,55 @@ Set up a file for custom settings instead of saving customize settings in
 good idea.
 
 #+BEGIN_SRC emacs-lisp
-  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-  (if (file-exists-p custom-file)
-      (load custom-file))
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(if (file-exists-p custom-file)
+    (load custom-file))
 #+END_SRC
 
-* Theme
-** Solarized Theme
+* Appearance
+Turn off a lot of the default stuff that just occupies screen real estate
+#+BEGIN_SRC emacs-lisp
+(when window-system
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (tooltip-mode -1)
+  (fringe-mode 1))
+
+(setq inhibit-splash-screen t)
+(setq inhibit-startup-message t)
+(setq initial-scratch-message "")
+#+END_SRC
+** Theme
+*** Solarized Theme
 I have been using the [[http://ethanschoonover.com/solarized][Solarized theme]] for as long as I can remember.  It has
 both light and dark variants and eye fatigue has never been a problem
 for me.
 
 #+BEGIN_SRC emacs-lisp
-  (use-package solarized-theme
-    :if (window-system)
-    :ensure t
-    :init
-    (load-theme 'solarized-dark t))
+(use-package solarized-theme
+  :if (window-system)
+  :ensure t
+  :init
+  (load-theme 'solarized-dark t))
 #+END_SRC
 
-** Convenient Theme Functions
+*** Convenient Theme Functions
 
 #+BEGIN_SRC emacs-lisp
-  (defun switch-theme (theme)
-    "Disables any currently active themes and loads THEME."
-    ;; This interactive call is taken from `load-theme'
-    (interactive
-     (list
-      (intern (completing-read "Load custom theme: "
-                               (mapc 'symbol-name
-                                     (custom-available-themes))))))
-    (let ((enabled-themes custom-enabled-themes))
-      (mapc #'disable-theme custom-enabled-themes)
-      (load-theme theme t)))
+(defun switch-theme (theme)
+  "Disables any currently active themes and loads THEME."
+  ;; This interactive call is taken from `load-theme'
+  (interactive
+   (list
+    (intern (completing-read "Load custom theme: "
+                             (mapc 'symbol-name
+                                   (custom-available-themes))))))
+  (let ((enabled-themes custom-enabled-themes))
+    (mapc #'disable-theme custom-enabled-themes)
+    (load-theme theme t)))
 #+END_SRC
-* Font
+** Font
 
 Inconsolata is a good monospace font for programmers and anyone else using a
 text editor a significant portion of their time.  The official release is at
@@ -59,10 +73,130 @@ smaller face size for comments, which I find makes it easier for my eye to
 slide over them without sacrificing readability.
 
 #+BEGIN_SRC emacs-lisp
-  (set-face-attribute 'default nil
-                      :family "Inconsolata" :height 120)
-  (set-face-attribute 'font-lock-comment-face nil
-                      :family "Inconsolata" :height 110)
+(set-face-attribute 'default nil
+                    :family "Inconsolata" :height 120)
+(set-face-attribute 'font-lock-comment-face nil
+                    :family "Inconsolata" :height 110)
+#+END_SRC
+
+** Mode Line Configuration
+
+This is largely based on the mode-line configuration of [[http://amitp.blogspot.com/2011/08/emacs-custom-mode-line.html][Amit Patel]].  I've
+made a few changes to make it smaller and render better on a 13" laptop
+display.  There are a couple of things that I wish it did differently though:
+- Don't include the pathname for buffers like ERC channels
+- Do not flag buffers that are not generally saved with the red tag (e.g., REPL, shells)
+- Fix the mode-line-read-only-face so that the top and bottom of the box match the rest of the mode-line
+- Switching on mode-line-modified-face changes the thickness of the mode line
+
+I may end up giving something like [[https://github.com/Malabarba/smart-mode-line][this]] a try too at some point.
+
+#+BEGIN_SRC emacs-lisp
+(setq-default mode-line-format
+              '(;; Position, including warning for 80 columns
+                (:propertize "%4l:" face mode-line-position-face)
+                (:eval (propertize "%3c" 'face
+                                   (if (>= (current-column) 80)
+                                       'mode-line-80col-face
+                                     'mode-line-position-face)))
+                
+                mode-line-client
+                ;; A few empty space
+                "    "
+                
+                ;; Show buffer status
+                (:eval (cond ((equal major-mode 'erc-mode)
+                              ("    "))
+                             ((buffer-modified-p)
+                              (propertize " ** "
+                                          'face 'mode-line-modified-face))
+                             (buffer-read-only
+                              (propertize " RO "
+                                          'face 'mode-line-read-only-face))
+                             (t "    ")))
+                
+                ;; More empty space
+                "    "
+                
+                ;; Directory and buffer or filename
+                (:propertize (:eval (shorten-directory default-directory 20))
+                             face mode-line-folder-face)
+                (:propertize "%b"
+                             face mode-line-filename-face)
+                
+                ;; Narrowing, if appropriate
+                " %n   "
+                
+                ;; Mode indicator
+                (:propertize mode-name
+                             face mode-line-mode-face)))
+
+;; Helper function to shorten paths
+(defun shorten-directory (dir max-length)
+  "Show up to `max-length' characters of a directory name `dir'."
+  (let ((path (reverse (split-string (abbreviate-file-name dir) "/")))
+        (output ""))
+    (when (and path (equal "" (car path)))
+      (setq path (cdr path)))
+    (while (and path (< (length output) (- max-length 4)))
+      (setq output (concat (car path) "/" output))
+      (setq path (cdr path)))
+    (when path
+      (setq output (concat ".../" output)))
+    output))
+
+(make-face 'mode-line-read-only-face)
+(make-face 'mode-line-modified-face)
+(make-face 'mode-line-folder-face)
+(make-face 'mode-line-filename-face)
+(make-face 'mode-line-position-face)
+(make-face 'mode-line-mode-face)
+(make-face 'mode-line-minor-mode-face)
+(make-face 'mode-line-process-face)
+(make-face 'mode-line-80col-face)
+
+(set-face-attribute 'mode-line nil
+                    :foreground "gray60" :background "gray20"
+                    :inverse-video nil
+                    :box '(:line-width 1 :color "gray20" :style nil))
+(set-face-attribute 'mode-line-inactive nil
+                    :foreground "gray80" :background "gray40"
+                    :inverse-video nil
+                    :box '(:line-width 1 :color "gray40" :style nil))
+(set-face-attribute 'mode-line-read-only-face nil
+                    :inherit 'mode-line-face
+                    :foreground "#4271ae"
+                    :box '(:line-width 1 :color "#4271aen"))
+(set-face-attribute 'mode-line-modified-face nil
+                    :inherit 'mode-line-face
+                    :foreground "#ffffff"
+                    :background "#c82829"
+                    :box '(:line-width 1 :color "#c82829"))
+(set-face-attribute 'mode-line-folder-face nil
+                    :inherit 'mode-line-face
+                    :foreground "gray60")
+(set-face-attribute 'mode-line-filename-face nil
+                    :inherit 'mode-line-face
+                    :foreground "#eab700"
+                    :weight 'bold)
+;; Make sure that the position font is monospaced, or the rest of the
+;; mode-line will jitter all over the place
+(set-face-attribute 'mode-line-position-face nil
+                    :inherit 'mode-line-face
+                    :family "Inconsolata" :height 120)
+(set-face-attribute 'mode-line-mode-face nil
+                    :inherit 'mode-line-face
+                    :foreground "gray80")
+(set-face-attribute 'mode-line-minor-mode-face nil
+                    :inherit 'mode-line-mode-face
+                    :foreground "gray40"
+                    :height 100)
+(set-face-attribute 'mode-line-process-face nil
+                    :inherit 'mode-line-face
+                    :foreground "#718c00")
+(set-face-attribute 'mode-line-80col-face nil
+                    :inherit 'mode-line-position-face
+                    :foreground "black" :background "#eab700")
 #+END_SRC
 
 * Defaults
@@ -70,62 +204,61 @@ slide over them without sacrificing readability.
 Much of this was lifted from [[https://github.com/danielmai/.emacs.d][Daniel Mai]].
 
 #+BEGIN_SRC emacs-lisp
-  ;; Keep all backup and auto-save files in one directory
-  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-  (setq version-control t)
-  (setq kept-old-versions 50)
-  (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
+;; Keep all backup and auto-save files in one directory
+(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+(setq version-control t)
+(setq kept-old-versions 50)
+(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
 
-  ;; UTF-8 encoding
-  (setq locale-coding-system 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  (set-selection-coding-system 'utf-8)
-  (prefer-coding-system 'utf-8)
-  (setq-default indent-tabs-mode nil)
+;; UTF-8 encoding
+(setq locale-coding-system 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(prefer-coding-system 'utf-8)
+(setq-default indent-tabs-mode nil)
 
-  ;; Turn off blinking cursors
-  (blink-cursor-mode -1)
+;; Turn off blinking cursors
+(blink-cursor-mode -1)
 
-  ;; Deal with whitespace and such here
-  (setq-default indent-tabs-mode nil)
-  (setq-default indicate-empty-lines t)
+;; Deal with whitespace and such here
+(setq-default indent-tabs-mode nil)
+(setq-default indicate-empty-lines t)
 
-  ;; Don't count two spaces after a period as the end of a sentence.
-  ;; Just one space is needed.
-  (setq sentence-end-double-space nil)
+;; Don't count two spaces after a period as the end of a sentence.
+;; Just one space is needed.
+(setq sentence-end-double-space nil)
 
-  ;; Delete the region when typing - not sure if I like this
-  (delete-selection-mode t)
+;; Delete the region when typing - not sure if I like this
+(delete-selection-mode t)
 
-  ;; Some intelligent settings for columsn and parenthesis
-  (show-paren-mode t)
+;; Some intelligent settings for columsn and parenthesis
+(show-paren-mode t)
 
-  ;; Visual line mode should be the default, and we will enable auto-fill mode on
-  ;; a mode by mode basis
-  (global-visual-line-mode)
-  (diminish 'visual-line-mode)
+;; Visual line mode should be the default, and we will enable auto-fill mode on
+;; a mode by mode basis
+(global-visual-line-mode)
+(diminish 'visual-line-mode)
 
-  ;; The default method for this is inane - but modeline might fix it
-  (setq uniquify-buffer-name-style 'forward)
+;; The default method for this is inane - but modeline might fix it
+(setq uniquify-buffer-name-style 'forward)
 
-  ;; Shut the hell up
-  (setq visible-bell t)
+;; Shut the hell up
+(setq visible-bell t)
 
-  ;; I hate the default quit behavior
-  (defun ask-before-closing ()
-    "Ask whether or not to close, and then close if y was pressed"
-    (interactive)
-    (if (y-or-n-p (format "Are you sure you want to exit Emacs? "))
-        (if (< emacs-major-version 22)
-            (save-buffers-kill-terminal)
-          (save-buffers-kill-emacs))
-      (message "Cancelled exit")))
-
+;; I hate the default quit behavior
+(defun ask-before-closing ()
+  "Ask whether or not to close, and then close if y was pressed"
+  (interactive)
+  (if (y-or-n-p (format "Are you sure you want to exit Emacs? "))
+      (if (< emacs-major-version 22)
+          (save-buffers-kill-terminal)
+        (save-buffers-kill-emacs))
+    (message "Cancelled exit")))
 #+END_SRC
 
 This fixes the aggravating problem of Mac OS not providing Emacs's
-shell with the usual one
+shell with the user environment variables (e.g., $PATH)
 
 #+BEGIN_SRC emacs-lisp
   (when (string-equal system-type "darwin")
@@ -136,123 +269,60 @@ shell with the usual one
       (exec-path-from-shell-initialize)))
 #+END_SRC
 
-* Mode Line Configuration
-
-This is largely based on the mode-line configuration of [[http://amitp.blogspot.com/2011/08/emacs-custom-mode-line.html][Amit Patel]].  I've
-made a few changes to make it smaller and render better on a 13" laptop
-display.  There are a couple of things that I wish it did differently though:
-
-** TODO Don't include the pathname for buffers like ERC channels
-** TODO Do not flag buffers that are not generally saved with the red tag (e.g., REPL, shells)
-** TODO Fix the mode-line-read-only-face so that the top and bottom of the box match the rest of the mode-line
-** TODO Switching on mode-line-modified-face changes the thickness of the mode line
-
+* Programming
+** Python
+For Python programming, I want the following:
+- Code completion using either auto-complete or company-mode
+- Code navigation, that is go to definition/usages
+- Function signature display using ElDoc
+- Documentation introspection on the symbol at point
+- Syntax checks using flymake or flycheck
+- Auto-fill by default
+** VHDL
+- Auto-fill by default
+** Verilog
+- Auto-fill by default
+** C
+- Auto-fill by default
 #+BEGIN_SRC emacs-lisp
-  (setq-default mode-line-format
-                '(;; Position, including warning for 80 columns
-                  (:propertize "%4l:" face mode-line-position-face)
-                  (:eval (propertize "%3c" 'face
-                                     (if (>= (current-column) 80)
-                                         'mode-line-80col-face
-                                       'mode-line-position-face)))
-  
-                  mode-line-client
-                  ;; A few empty space
-                  "    "
-  
-                  ;; Show buffer status
-                  (:eval (cond ((equal major-mode 'erc-mode)
-                                ("    "))
-                               ((buffer-modified-p)
-                                (propertize " ** "
-                                            'face 'mode-line-modified-face))
-                               (buffer-read-only
-                                (propertize " RO "
-                                            'face 'mode-line-read-only-face))
-                               (t "    ")))
-  
-                  ;; More empty space
-                  "    "
-  
-                  ;; Directory and buffer or filename
-                  (:propertize (:eval (shorten-directory default-directory 20))
-                               face mode-line-folder-face)
-                  (:propertize "%b"
-                               face mode-line-filename-face)
-  
-                  ;; Narrowing, if appropriate
-                  " %n   "
-  
-                  ;; Mode indicator
-                  (:propertize mode-name
-                               face mode-line-mode-face)))
-  
-  ;; Helper function to shorten paths
-  (defun shorten-directory (dir max-length)
-    "Show up to `max-length' characters of a directory name `dir'."
-    (let ((path (reverse (split-string (abbreviate-file-name dir) "/")))
-          (output ""))
-      (when (and path (equal "" (car path)))
-        (setq path (cdr path)))
-      (while (and path (< (length output) (- max-length 4)))
-        (setq output (concat (car path) "/" output))
-        (setq path (cdr path)))
-      (when path
-        (setq output (concat ".../" output)))
-      output))
-  
-  (make-face 'mode-line-read-only-face)
-  (make-face 'mode-line-modified-face)
-  (make-face 'mode-line-folder-face)
-  (make-face 'mode-line-filename-face)
-  (make-face 'mode-line-position-face)
-  (make-face 'mode-line-mode-face)
-  (make-face 'mode-line-minor-mode-face)
-  (make-face 'mode-line-process-face)
-  (make-face 'mode-line-80col-face)
-     
-  (set-face-attribute 'mode-line nil
-                      :foreground "gray60" :background "gray20"
-                      :inverse-video nil
-                      :box '(:line-width 1 :color "gray20" :style nil))
-  (set-face-attribute 'mode-line-inactive nil
-                      :foreground "gray80" :background "gray40"
-                      :inverse-video nil
-                      :box '(:line-width 1 :color "gray40" :style nil))
-  (set-face-attribute 'mode-line-read-only-face nil
-                      :inherit 'mode-line-face
-                      :foreground "#4271ae"
-                      :box '(:line-width 1 :color "#4271aen"))
-  (set-face-attribute 'mode-line-modified-face nil
-                      :inherit 'mode-line-face
-                      :foreground "#ffffff"
-                      :background "#c82829"
-                      :box '(:line-width 1 :color "#c82829"))
-  (set-face-attribute 'mode-line-folder-face nil
-                      :inherit 'mode-line-face
-                      :foreground "gray60")
-  (set-face-attribute 'mode-line-filename-face nil
-                      :inherit 'mode-line-face
-                      :foreground "#eab700"
-                      :weight 'bold)
-  ;; Make sure that the position font is monospaced, or the rest of the
-  ;; mode-line will jitter all over the place
-  (set-face-attribute 'mode-line-position-face nil
-                      :inherit 'mode-line-face
-                      :family "Inconsolata" :height 120)
-  (set-face-attribute 'mode-line-mode-face nil
-                      :inherit 'mode-line-face
-                      :foreground "gray80")
-  (set-face-attribute 'mode-line-minor-mode-face nil
-                      :inherit 'mode-line-mode-face
-                      :foreground "gray40"
-                      :height 100)
-  (set-face-attribute 'mode-line-process-face nil
-                      :inherit 'mode-line-face
-                      :foreground "#718c00")
-  (set-face-attribute 'mode-line-80col-face nil
-                      :inherit 'mode-line-position-face
-                      :foreground "black" :background "#eab700")
+(use-package cc-mode
+  :ensure t
+  :init
+  (setq c-default-style "bsd"
+        c-basic-offset 4))
+#+END_SRC
+
+* Productivity
+** Ido
+Interactively do things with buffers and files.  Also enable
+ido-enable-flex-matching.
+#+BEGIN_SRC emacs-lisp
+(use-package ido
+  :init
+  (setq ido-enable-flex-matching t)
+  (setq ido-everywhere t)
+  (ido-mode t)
+  (use-package ido-vertical-mode
+    :ensure t
+    :defer t
+    :init (ido-vertical-mode 1)
+    (setq ido-vertical-define-keys 'C-n-and-C-p-only))
+  (use-package ido-hacks
+    :ensure t
+    :defer t))
+#+END_SRC
+** Ibuffer
+Use ibuffer instead of the default list-buffers.
+#+BEGIN_SRC emacs-lisp
+(defalias 'list-buffers 'ibuffer)
+#+END_SRC
+** Org-Mode
+#+BEGIN_SRC emacs-lisp
+(setq org-src-fontify-natively t
+      org-src-window-setup 'current-window
+      org-src-strip-leading-and-trailing-blank-lines t
+      org-src-preserve-indentation t
+      org-src-tab-acts-natively t)
 #+END_SRC
 * Global Keybinds
 
@@ -260,46 +330,50 @@ Having rewritten the function used for quitting, we remap the keybind for
 quitting Emacs
 
 #+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "C-x C-c") 'ask-before-closing)
+(global-set-key (kbd "C-x C-c") 'ask-before-closing)
 #+END_SRC
 
 ** Org-Mode
-
 Also, here are some global key bindings that integrate really well with
 org-mode
 
 #+BEGIN_SRC emacs-lisp
-  (bind-key "C-c l" 'org-store-link)
-  (bind-key "C-c c" 'org-capture)
-  (bind-key "C-c a" 'org-agenda)
+(bind-key "C-c l" 'org-store-link)
+(bind-key "C-c c" 'org-capture)
+(bind-key "C-c a" 'org-agenda)
 #+END_SRC
 
 ** Window
-
 Convenient keybindings to resize windows.
 
 #+BEGIN_SRC emacs-lisp
-  (bind-key "s-C-<left>"  'shrink-window-horizontally)
-  (bind-key "s-C-<right>" 'enlarge-window-horizontally)
-  (bind-key "s-C-<down>"  'shrink-window)
-  (bind-key "s-C-<up>"    'enlarge-window)
+(bind-key "s-C-<left>"  'shrink-window-horizontally)
+(bind-key "s-C-<right>" 'enlarge-window-horizontally)
+(bind-key "s-C-<down>"  'shrink-window)
+(bind-key "s-C-<up>"    'enlarge-window)
 #+END_SRC
 
 This is a nice clever way to split and switch to the other window at the same
 time.  Not sure why this isn't default behavior.
 
 #+BEGIN_SRC emacs-lisp
-  (defun vsplit-other-window ()
-    "Splits the window vertically and switches to that window."
-    (interactive)
-    (split-window-vertically)
-    (other-window 1 nil))
-  (defun hsplit-other-window ()
-    "Splits the window horizontally and switches to that window."
-    (interactive)
-    (split-window-horizontally)
-    (other-window 1 nil))
+(defun vsplit-other-window ()
+  "Splits the window vertically and switches to that window."
+  (interactive)
+  (split-window-vertically)
+  (other-window 1 nil))
+(defun hsplit-other-window ()
+  "Splits the window horizontally and switches to that window."
+  (interactive)
+  (split-window-horizontally)
+  (other-window 1 nil))
 
-  (bind-key "C-x 2" 'vsplit-other-window)
-  (bind-key "C-x 3" 'hsplit-other-window)
+(bind-key "C-x 2" 'vsplit-other-window)
+(bind-key "C-x 3" 'hsplit-other-window)
+#+END_SRC
+* Other
+#+BEGIN_SRC emacs-lisp
+(use-package server
+  :config
+  (server-start))
 #+END_SRC

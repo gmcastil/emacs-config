@@ -1,17 +1,6 @@
 ;;;; init.el --- Emacs customizations
 (setq gc-cons-threshold 400000000)
 
-(when window-system
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-  (tooltip-mode -1)
-  (fringe-mode 1))
-
-(setq inhibit-splash-screen t)
-(setq inhibit-startup-message t)
-(setq initial-scratch-message "")
-
 ;; Set up package manager
 (require 'package)
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
@@ -30,8 +19,6 @@
 (require 'diminish)
 (require 'bind-key)
 ;; (setq use-package-verbose t)
-
-(server-start)
 
 ;;; Now load the config
 (require 'org)
