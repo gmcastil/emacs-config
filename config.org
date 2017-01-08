@@ -73,7 +73,7 @@ slide over them without sacrificing readability.
 
 Inconsolata is another nice programming font, but it doesn't center asterisks
 vertically, which I find a little unsightly.  The official release is at
-[[https://fonts.google.com/specimen/Inconsolata][Google fonts]] and official upstream is on [[https://github.com/google/fonts/tree/master/ofl/inconsolata][github]].  
+[[https://fonts.google.com/specimen/Inconsolata][Google fonts]] and official upstream is on [[https://github.com/google/fonts/tree/master/ofl/inconsolata][github]].
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute 'default nil
                     :family "Anonymous Pro" :height 120)
@@ -101,11 +101,11 @@ I may end up giving something like [[https://github.com/Malabarba/smart-mode-lin
                                    (if (>= (current-column) 80)
                                        'mode-line-80col-face
                                      'mode-line-position-face)))
-                
+
                 mode-line-client
                 ;; A few empty space
                 "    "
-                
+
                 ;; Show buffer status
                 (:eval (cond ((equal major-mode 'erc-mode)
                               ("    "))
@@ -116,19 +116,19 @@ I may end up giving something like [[https://github.com/Malabarba/smart-mode-lin
                               (propertize " RO "
                                           'face 'mode-line-read-only-face))
                              (t "    ")))
-                
+
                 ;; More empty space
                 "    "
-                
+
                 ;; Directory and buffer or filename
                 (:propertize (:eval (shorten-directory default-directory 20))
                              face mode-line-folder-face)
                 (:propertize "%b"
                              face mode-line-filename-face)
-                
+
                 ;; Narrowing, if appropriate
                 " %n   "
-                
+
                 ;; Mode indicator
                 (:propertize mode-name
                              face mode-line-mode-face)))
@@ -276,6 +276,14 @@ elsewhere as needed.
   (set-fill-column 80))
 #+END_SRC
 
+Also, delete trailing whitespace after saving.  Note that in some contexts this
+can really mess with files that are under revision control.  If you are editing
+a file that has a lot of whitespace, consider fixing the whitespace separately
+to keep maintainers from getting angry with you.
+#+BEGIN_SRC
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+#+END_SRC
+
 * Programming
 
 Emacs 24.1 introduced a new major mode that all other programming major modes
@@ -327,6 +335,12 @@ Use flycheck for syntax checking in Python buffers
 (use-package flycheck
   :ensure t
   :init (global-flycheck-mode))
+#+END_SRC
+
+And also use pylint to improve code quality and conformance to coding standards.
+#+BEGIN_SRC emacs-lisp
+(use-package pylint
+  :ensure t)
 #+END_SRC
 
 Finally, I prefer auto-fill-mode to be enabled by default in python buffers and
