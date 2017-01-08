@@ -553,6 +553,10 @@ This seems to be working - not a huge fan of the colors though
 ** TODO Tell org-mode where to find agenda files
 ** TODO Enable flyspell in all programming comments using something like this
 Also, can enable spell-checking in code comments
+** TODO Try to configure pylint's output
+https://pylint.readthedocs.io/en/latest/user_guide/output.html
+
+I think this is like pylint --msg-template or soemthing
 # #+BEGIN_SRC emacs-lisp
 # (add-hook 'prog-mode-hook 'flyspell-prog-mode)
 # #+END_SRC
