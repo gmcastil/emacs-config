@@ -22,7 +22,9 @@ good idea.
 #+END_SRC
 
 * Appearance
-Turn off a lot of the default stuff that just occupies screen real estate
+
+Turn off a lot of the default stuff that just occupies screen real
+estate.
 #+BEGIN_SRC emacs-lisp
 (when window-system
   (menu-bar-mode -1)
@@ -31,54 +33,54 @@ Turn off a lot of the default stuff that just occupies screen real estate
   (tooltip-mode -1)
   (fringe-mode 1))
 
+;; the menu-bar-mode should remian off unless we happen to be on Mac OS - the
+;; blank menu at the top of the screen it creates just looks weird to me.
+(if (and window-system (string-equal system-type "darwin"))
+ (menu-bar-mode nil))
+
 (setq inhibit-splash-screen t)
 (setq inhibit-startup-message t)
+
+;; elisp scratch buffers should be empty
 (setq initial-scratch-message "")
 #+END_SRC
 ** Theme
 *** Solarized Theme
-I have been using the [[http://ethanschoonover.com/solarized][Solarized theme]] for as long as I can remember.  It has
+I have been using [[http://ethanschoonover.com/solarized][Solarized themes]] for as long as I can remember.  It has
 both light and dark variants and eye fatigue has never been a problem
 for me.
-
 #+BEGIN_SRC emacs-lisp
-(use-package solarized-theme
-  :if (window-system)
+;; for some reason, if color-theme is not explicitly installed first, this breaks.
+(use-package color-theme :ensure t)
+
+;; https://github.com/sellout/emacs-color-theme-solarized/pull/187
+(use-package color-theme-solarized
   :ensure t
   :init
-  (load-theme 'solarized-dark t))
+  (customize-set-variable 'frame-background-mode 'dark)
+  (load-theme 'solarized t))
 #+END_SRC
-
-*** Convenient Theme Functions
-
-#+BEGIN_SRC emacs-lisp
-(defun switch-theme (theme)
-  "Disables any currently active themes and loads THEME."
-  ;; This interactive call is taken from `load-theme'
-  (interactive
-   (list
-    (intern (completing-read "Load custom theme: "
-                             (mapc 'symbol-name
-                                   (custom-available-themes))))))
-  (let ((enabled-themes custom-enabled-themes))
-    (mapc #'disable-theme custom-enabled-themes)
-    (load-theme theme t)))
-#+END_SRC
+Note that because color-theme-solarized mucks with the modeline colors and
+fonts, some weird behavior will occur if you change themes after Emacs has
+started. A more clever way to do this would be to create a function that sets
+the modeline appropriately, and then look to see if there is a hook that can be
+used for post-theme switching. Something to look into.
 ** Font
-
-Inconsolata is a good monospace font for programmers and anyone else using a
-text editor a significant portion of their time.  The official release is at
-[[https://fonts.google.com/specimen/Inconsolata][Google fonts]] and official upstream is on [[https://github.com/google/fonts/tree/master/ofl/inconsolata][github]].  I also use a slightly
+Anonymous Pro is a good monospace font for programmers and anyone else using a
+text editor a significant portion of their time.  I also use a slightly
 smaller face size for comments, which I find makes it easier for my eye to
 slide over them without sacrificing readability.
 
+Inconsolata is another nice programming font, but it doesn't center asterisks
+vertically, which I find a little unsightly.  The official release is at
+[[https://fonts.google.com/specimen/Inconsolata][Google fonts]] and official upstream is on [[https://github.com/google/fonts/tree/master/ofl/inconsolata][github]].  
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute 'default nil
-                    :family "Inconsolata" :height 120)
+                    :family "Anonymous Pro" :height 120)
 (set-face-attribute 'font-lock-comment-face nil
-                    :family "Inconsolata" :height 110)
+                    :family "Anonymous Pro" :height 110)
 #+END_SRC
-
+If Anonymous Pro is not installed on the machine, loading the config will likely hang here or when redefining the modeline
 ** Mode Line Configuration
 
 This is largely based on the mode-line configuration of [[http://amitp.blogspot.com/2011/08/emacs-custom-mode-line.html][Amit Patel]].  I've
@@ -183,7 +185,7 @@ I may end up giving something like [[https://github.com/Malabarba/smart-mode-lin
 ;; mode-line will jitter all over the place
 (set-face-attribute 'mode-line-position-face nil
                     :inherit 'mode-line-face
-                    :family "Inconsolata" :height 120)
+                    :family "Anonymous Pro" :height 120)
 (set-face-attribute 'mode-line-mode-face nil
                     :inherit 'mode-line-face
                     :foreground "gray80")
@@ -218,35 +220,35 @@ Much of this was lifted from [[https://github.com/danielmai/.emacs.d][Daniel Mai
 (prefer-coding-system 'utf-8)
 (setq-default indent-tabs-mode nil)
 
-;; Turn off blinking cursors
+;; turn off blinking cursors
 (blink-cursor-mode -1)
 
-;; Deal with whitespace and such here
+;; deal with whitespace and such here
 (setq-default indent-tabs-mode nil)
 (setq-default indicate-empty-lines t)
 
-;; Don't count two spaces after a period as the end of a sentence.
-;; Just one space is needed.
+;; don't count two spaces after a period as the end of a sentence.
+;; just one space is needed.
 (setq sentence-end-double-space nil)
 
-;; Delete the region when typing - not sure if I like this
+;; delete the region when typing - not sure if I like this
 (delete-selection-mode t)
 
-;; Some intelligent settings for columsn and parenthesis
+;; some intelligent settings for columns and parenthesis
 (show-paren-mode t)
 
-;; Visual line mode should be the default, and we will enable auto-fill mode on
+;; visual line mode should be the default, and we will enable auto-fill mode on
 ;; a mode by mode basis
 (global-visual-line-mode)
 (diminish 'visual-line-mode)
 
-;; The default method for this is inane - but modeline might fix it
+;; the default method for this is inane - but modeline might fix it
 (setq uniquify-buffer-name-style 'forward)
 
-;; Shut the hell up
+;; shut the hell up
 (setq visible-bell t)
 
-;; I hate the default quit behavior
+;; also I hate the default quit behavior
 (defun ask-before-closing ()
   "Ask whether or not to close, and then close if y was pressed"
   (interactive)
