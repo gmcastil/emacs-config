@@ -1,7 +1,0 @@
-Things to add:
-
-* Turn docs into MD or ReST
-* Add support for math auto-complete
-* Figure out the 80 columns thing for programming modes
-* Spell checking
-* Strip whitespace before saving in all files (actually don't do this for VC files)

@@ -1,2 +1,4 @@
 # Ignore all Emacs backup files
 *~
+# Also ignore any built version of the configuration file
+config.el

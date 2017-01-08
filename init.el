@@ -1,32 +1,27 @@
 ;;;; init.el --- Emacs customizations
+(setq gc-cons-threshold 400000000)
 
-;; This is for my own Lisp files
-(add-to-list 'load-path "~/.emacs.d/lisp/")
-;; This is for Lisp that isn't installed by package.el
-(add-to-list 'load-path "~/.emacs.d/site-lisp")
-
+;; Set up package manager
 (require 'package)
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.milkbox.net/packages/")))
 (package-initialize)
 
-(load "package-manager.el")
-(load "ac-config.el")
-(load "ui-config.el")
-(load "python-config.el")
-(load "erc-config.el")
-(load "racket-config.el")
-(load "system-config.el")
-(load "latex-config.el")
-(load "org-config.el")
-(load "outline-config.el")
-;;(load "text-config.el")
+;; Install use-package, if it's not already installed, and then use use-package
+;; for configuring all other packages
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 
-(require 'magit)
-(global-set-key "\C-xg" 'magit-status)
-(require 'auto-complete)
-(require 'autopair)
-(require 'yasnippet)
-(require 'flycheck)
-(global-flycheck-mode t)
-(global-set-key [f7] 'find-file-in-repository)
+;; From use-package README
+(eval-when-compile
+  (require 'use-package))
+(require 'diminish)
+(require 'bind-key)
+;; (setq use-package-verbose t)
 
-(server-start)
+;;; Now load the config
+(require 'org)
+(org-babel-load-file (concat user-emacs-directory "config.org"))
+
+(setq gc-cons-threshold 800000)
