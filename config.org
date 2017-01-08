@@ -363,7 +363,6 @@ Set the indention style when in C mode
 #+END_SRC
 
 * Productivity
-
 ** Ido
 Interactively do things with buffers and files.  Also enable
 ido-enable-flex-matching.
@@ -373,6 +372,7 @@ ido-enable-flex-matching.
   (setq ido-enable-flex-matching t)
   (setq ido-everywhere t)
   (ido-mode t)
+  (add-to-list 'ido-ignore-files "\\.pyc")
   (use-package ido-vertical-mode
     :ensure t
     :defer t
@@ -389,6 +389,14 @@ Use ibuffer instead of the default list-buffers.
 (defalias 'list-buffers 'ibuffer)
 #+END_SRC
 
+While we're at it, kill unmodified buffers without asking for confirmation.
+#+BEGIN_SRC emacs-lisp
+(defun volatile-kill-buffer ()
+   "Kill current buffer unconditionally."
+   (interactive)
+   (let ((buffer-modified-p nil))
+     (kill-buffer (current-buffer))))
+#+END_SRC
 ** Org-Mode
 #+BEGIN_SRC emacs-lisp
 (use-package org
@@ -403,16 +411,71 @@ Use ibuffer instead of the default list-buffers.
 #+END_SRC
 
 ** ERC
+I use IRC quite a bit, pretty much just on Freenode. Unfortunately, the main
+network at the office blocks IRC traffic, so this only works from a network
+connection that has access to that server. One of my side projects is
+configuring this to use an IRC network bouncer, but for now, this will have to
+do.
+#+BEGIN_SRC emacs-lisp
+(use-package erc-hl-nicks
+  :ensure t)
+(use-package erc
+  :ensure t
+  :init
+  (erc-autojoin-mode t)
+  ;; buttonize links in an intelligent way
+  (setq erc-button-url-regexp
+	"\\([-a-zA-Z0-9_=!?#$@~`%&*+\\/:;,]+\\.\\)+[-a-zA-Z0-9_=!?#$@~`%&*+\\/:;,]*[-a-zA-Z0-9\\/]")
+  ;; don't show any of these notifications
+  (setq erc-hide-list '("JOIN" "PART" "QUIT" "NICK"))
+  (setq erc-track-exclude-types '("JOIN" "NICK" "PART" "QUIT" "MODE"
+				  "324" "329" "332" "333" "343" "477"))
+  (setq erc-autojoin-channels-alist
+      '((".*\\.freenode.net" "#emacs" "#physics" "#python" "#math")))
 
+  ;; This sets the ERC prompt to include the channel name, which is an awesome thing
+  ;; Code snippet from http://www.emacswiki.org/emacs/ErcConfiguration
+  ;; Bug alert - (erc-default-target) returns nil when the prompt is first displayed.
+  ;; Also, the code is ugly and needs fixing
+  (setq erc-prompt (lambda ()
+		     (if (and (boundp 'erc-default-recipients) (erc-default-target))
+			 (erc-propertize (concat (erc-default-target) ">") 'read-only t
+					 'rear-nonsticky t 'front-nonsticky t)
+		       (erc-propertize (concat "ERC>") 'read-only t 'rear-nonsticky t
+				       'front-nonsticky t)))))
+#+END_SRC
+Now we define a function to automatically login to the IRC server and join the
+usual hangouts.  Obviously change 'username' and 'password' to whatever yours
+are.  I should like to encrypt those instead of storing them in plain text.
+#+BEGIN_SRC emacs-lisp
+(defun join-erc ()
+  "Fire up ERC!"
+  (interactive)
+  ;; if ERC buffer exists already, then switch to the last active ERC buffer
+  (if (get-buffer "irc.freenode.net:6667")
+      (erc-track-switch-buffer 1)
+    (when (y-or-n-p "Start ERC? ")
+      (erc :server "irc.freenode.net" :port 6667
+	   :nick "username" :password "password"))))
+#+END_SRC
 * Global Keybinds
 
 Having rewritten the function used for quitting, we remap the keybind for
-quitting Emacs
-
+quitting Emacs.
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-x C-c") 'ask-before-closing)
 #+END_SRC
 
+Also, remap the keybind for killing buffers so that we do not have to get
+confirmation for killing unmodified buffers.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-x k") 'volatile-kill-buffer)
+#+END_SRC
+** ERC
+Join ERC from anywhere.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c e") 'join-erc)
+#+END_SRC
 ** Org-Mode
 Also, here are some global key bindings that integrate really well with
 org-mode
@@ -476,14 +539,16 @@ it by hand for ages now and don't know why I waited this long to fix it.
 * Things to Include
 
 A few things that still need to be done:
-** TODO Enable pylint to check Python buffers
+** DONE Enable pylint to check Python buffers
+This should work out of the box now
 ** TODO Configure VHDL mode
 ** TODO Configure Verilog mode
 ** TODO Configure verilator to work with flycheck for verilog syntax checking
 ** TODO Yasnippets and Verilog / VHDL / Systemverilog
 ** TODO Configure support for editing of emails using Mutt
 ** DONE Code folding in Python files
-** TODO Configure ERC
+** DONE Configure ERC
+This seems to be working - not a huge fan of the colors though
 ** TODO Org-mode should always open org files fully collapsed
 ** TODO Tell org-mode where to find agenda files
 ** TODO Enable flyspell in all programming comments using something like this
