@@ -338,6 +338,8 @@ Use flycheck for syntax checking in Python buffers
 #+END_SRC
 
 And also use pylint to improve code quality and conformance to coding standards.
+This assumes the pylint package has been installed on the system and is in the
+Python load-path.
 #+BEGIN_SRC emacs-lisp
 (use-package pylint
   :ensure t)
@@ -546,9 +548,11 @@ This should work out of the box now
 ** TODO Configure verilator to work with flycheck for verilog syntax checking
 ** TODO Yasnippets and Verilog / VHDL / Systemverilog
 ** TODO Configure support for editing of emails using Mutt
+This is likely just using emacsclient commands in $HOME/.mutt/muttrc
 ** DONE Code folding in Python files
 ** DONE Configure ERC
 This seems to be working - not a huge fan of the colors though
+** TODO Add encryption to ERC passwords
 ** TODO Org-mode should always open org files fully collapsed
 ** TODO Tell org-mode where to find agenda files
 ** TODO Enable flyspell in all programming comments using something like this
