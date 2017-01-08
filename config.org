@@ -31,7 +31,7 @@ estate.
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (tooltip-mode -1)
-  (fringe-mode 1))
+  (fringe-mode -1))
 
 ;; the menu-bar-mode should remian off unless we happen to be on Mac OS - the
 ;; blank menu at the top of the screen it creates just looks weird to me.
@@ -44,6 +44,7 @@ estate.
 ;; elisp scratch buffers should be empty
 (setq initial-scratch-message "")
 #+END_SRC
+
 ** Theme
 *** Solarized Theme
 I have been using [[http://ethanschoonover.com/solarized][Solarized themes]] for as long as I can remember.  It has
@@ -65,6 +66,7 @@ fonts, some weird behavior will occur if you change themes after Emacs has
 started. A more clever way to do this would be to create a function that sets
 the modeline appropriately, and then look to see if there is a hook that can be
 used for post-theme switching. Something to look into.
+
 ** Font
 Anonymous Pro is a good monospace font for programmers and anyone else using a
 text editor a significant portion of their time.  I also use a slightly
@@ -81,8 +83,8 @@ vertically, which I find a little unsightly.  The official release is at
                     :family "Anonymous Pro" :height 110)
 #+END_SRC
 If Anonymous Pro is not installed on the machine, loading the config will likely hang here or when redefining the modeline
-** Mode Line Configuration
 
+** Mode Line Configuration
 This is largely based on the mode-line configuration of [[http://amitp.blogspot.com/2011/08/emacs-custom-mode-line.html][Amit Patel]].  I've
 made a few changes to make it smaller and render better on a 13" laptop
 display.  There are a couple of things that I wish it did differently though:
@@ -231,16 +233,15 @@ Much of this was lifted from [[https://github.com/danielmai/.emacs.d][Daniel Mai
 ;; just one space is needed.
 (setq sentence-end-double-space nil)
 
-;; delete the region when typing - not sure if I like this
+;; delete the region when typing - not default behavior, but it seems ok once
+;; you get used to it
 (delete-selection-mode t)
 
 ;; some intelligent settings for columns and parenthesis
 (show-paren-mode t)
 
-;; visual line mode should be the default, and we will enable auto-fill mode on
-;; a mode by mode basis
-(global-visual-line-mode)
-(diminish 'visual-line-mode)
+;; enable auto-fillmode for all text modes
+(add-hook 'text-mode-hook 'my-auto-fill-mode)
 
 ;; the default method for this is inane - but modeline might fix it
 (setq uniquify-buffer-name-style 'forward)
@@ -271,15 +272,61 @@ shell with the user environment variables (e.g., $PATH)
       (exec-path-from-shell-initialize)))
 #+END_SRC
 
+When I use auto-fill-mode, I tend to want it to behave the same, so I'll define
+that behavior here and then just add it to mode hooks as needed.
+
+#+BEGIN_SRC emacs-lisp
+(defun my-auto-fill-mode ()
+  "Define a consistent approach for auto-fill-mode"
+  (interactive)
+  (turn-on-auto-fill)
+  (set-fill-column 80))
+#+END_SRC
 * Programming
 ** Python
-For Python programming, I want the following:
-- Code completion using either auto-complete or company-mode
-- Code navigation, that is go to definition/usages
-- Function signature display using ElDoc
-- Documentation introspection on the symbol at point
-- Syntax checks using flymake or flycheck
-- Auto-fill by default
+First, make sure that python-mode gets invoked with a few useful default
+settings:
+#+BEGIN_SRC emacs-lisp
+(use-package python
+  :mode (("\\.py$" . python-mode)
+         ("\\.cpy$" . python-mode)
+         ("\\.vpy$" . python-mode))
+  :init
+  (setq tab-width 4))
+#+END_SRC
+
+[[/usr/lib/python2.7/site-packages/jedi/utils.py][Jedi]] is an awesome autocompletion library for Python.  This assumes that the
+jedi libaries are installed somewhere in the Python load-path.
+#+BEGIN_SRC emacs-lisp
+(use-package jedi
+  :ensure t
+  :preface
+  (declare-function jedi:goto-definition jedi nil)
+  (declare-function jedi:related-names jedi nil)
+  (declare-function jedi:show-doc jedi nil)
+  :bind (("C-." . jedi:goto-definition)
+	 ("C-c r" . jedi:related-names)
+	 ("C-?" . jedi:show-doc))
+  :init (jedi:install-server))
+
+;; calling jedi:setup instead of jedi:ac-setup fully sets up jedi for the
+;; current buffer
+(add-hook 'python-mode-hook 'jedi:setup)
+#+END_SRC
+
+Use flycheck for syntax checking in Python buffers
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode))
+#+END_SRC
+#  :init (setq flycheck-global-modes '(python-mode)))
+Finally, I prefer auto-fill-mode to be enabled by default in python buffers and
+to use a sensible number of columns.
+#+BEGIN_SRC emacs-lisp
+(add-hook 'python-mode-hook 'my-auto-fill-mode)
+#+END_SRC
+
 ** VHDL
 - Auto-fill by default
 ** Verilog
@@ -313,19 +360,26 @@ ido-enable-flex-matching.
     :ensure t
     :defer t))
 #+END_SRC
+
 ** Ibuffer
 Use ibuffer instead of the default list-buffers.
 #+BEGIN_SRC emacs-lisp
 (defalias 'list-buffers 'ibuffer)
 #+END_SRC
+
 ** Org-Mode
 #+BEGIN_SRC emacs-lisp
-(setq org-src-fontify-natively t
-      org-src-window-setup 'current-window
-      org-src-strip-leading-and-trailing-blank-lines t
-      org-src-preserve-indentation t
-      org-src-tab-acts-natively t)
+(use-package org
+  :ensure t
+  :init
+  (setq org-src-fontify-natively t
+        org-src-window-setup 'current-window
+        org-src-strip-leading-and-trailing-blank-lines t
+        org-src-preserve-indentation t
+        org-src-tab-acts-natively t)
+  (add-hook 'org-mode-hook 'my-auto-fill-mode))
 #+END_SRC
+
 * Global Keybinds
 
 Having rewritten the function used for quitting, we remap the keybind for
@@ -379,3 +433,14 @@ time.  Not sure why this isn't default behavior.
   :config
   (server-start))
 #+END_SRC
+* Things to Include
+A few things that still need to be done:
+** TODO Determine a C indenting style for default and tab stops
+** TODO Enable pylint to check Python buffers
+** TODO Configure VHDL mode
+** TODO Configure Verilog mode
+** TODO Configure verilator to work with flycheck for verilog syntax checking
+** TODO Yasnippets and Verilog / VHDL / Systemverilog
+** TODO Configure support for editing of emails using Mutt
+** TODO Code folding in Python files
+** TODO Configure ERC
