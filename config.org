@@ -234,8 +234,11 @@ Much of this was lifted from [[https://github.com/danielmai/.emacs.d][Daniel Mai
 ;; some intelligent settings for columns and parenthesis
 (show-paren-mode t)
 
-;; enable auto-fill-mode for all text modes
-(add-hook 'text-mode-hook 'my-auto-fill-mode)
+;; enable auto-fill-mode for all text modes and set the fill width to be the
+;; same every time
+(add-hook 'text-mode-hook '(lambda ()
+                            (auto-fill-mode)
+                            (setq-default fill-column 80)))
 
 ;; the default method for this is inane - but modeline might fix it
 (setq uniquify-buffer-name-style 'forward)
@@ -265,22 +268,11 @@ shell with the user environment variables (e.g., $PATH)
       (exec-path-from-shell-initialize)))
 #+END_SRC
 
-When I use auto-fill-mode, I tend to want it to behave the same no matter the
-major-mode, so define that behavior here and then just add it to mode hooks
-elsewhere as needed.
-#+BEGIN_SRC emacs-lisp
-(defun my-auto-fill-mode ()
-  "Define a consistent approach for auto-fill-mode"
-  (interactive)
-  (turn-on-auto-fill)
-  (set-fill-column 80))
-#+END_SRC
-
 Also, delete trailing whitespace after saving.  Note that in some contexts this
 can really mess with files that are under revision control.  If you are editing
 a file that has a lot of whitespace, consider fixing the whitespace separately
 to keep maintainers from getting angry with you.
-#+BEGIN_SRC
+#+BEGIN_SRC emacs-lisp
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 #+END_SRC
 
@@ -315,26 +307,19 @@ settings:
 jedi libaries are installed somewhere in the Python load-path.
 #+BEGIN_SRC emacs-lisp
 (use-package jedi
-  :ensure t
-  :preface
-  (declare-function jedi:goto-definition jedi nil)
-  (declare-function jedi:related-names jedi nil)
-  (declare-function jedi:show-doc jedi nil)
-  :bind (("C-." . jedi:goto-definition)
-	 ("C-c r" . jedi:related-names)
-	 ("C-?" . jedi:show-doc))
-  :init (jedi:install-server))
+    :ensure t
+    :preface
+    (declare-function jedi:goto-definition jedi nil)
+    (declare-function jedi:related-names jedi nil)
+    (declare-function jedi:show-doc jedi nil)
+    :bind (("C-." . jedi:goto-definition)
+           ("C-c r" . jedi:related-names)
+           ("C-?" . jedi:show-doc))
+    :init (jedi:install-server))
 
-;; calling jedi:setup instead of jedi:ac-setup fully sets up jedi for the
-;; current buffer
-(add-hook 'python-mode-hook 'jedi:setup)
-#+END_SRC
-
-Use flycheck for syntax checking in Python buffers
-#+BEGIN_SRC emacs-lisp
-(use-package flycheck
-  :ensure t
-  :init (global-flycheck-mode))
+  ;; calling jedi:setup instead of jedi:ac-setup fully sets up jedi for the
+  ;; current buffer
+  (add-hook 'python-mode-hook 'jedi:setup)
 #+END_SRC
 
 And also use pylint to improve code quality and conformance to coding standards.
@@ -343,12 +328,6 @@ Python load-path.
 #+BEGIN_SRC emacs-lisp
 (use-package pylint
   :ensure t)
-#+END_SRC
-
-Finally, I prefer auto-fill-mode to be enabled by default in python buffers and
-to use a sensible number of columns.
-#+BEGIN_SRC emacs-lisp
-(add-hook 'python-mode-hook 'my-auto-fill-mode)
 #+END_SRC
 
 ** VHDL
@@ -362,6 +341,23 @@ Set the indention style when in C mode
   :ensure t
   :init
   (setq c-default-style "k&r"))
+#+END_SRC
+
+** Flycheck
+Flycheck is great for performing syntax checking, but it is not very flexibile
+when it comes to determining when and when not to invoke its phenomenal cosmic
+powers.  Usually, if it cannot find a compatible syntax checker, it just passes
+and lets you carry on without much more than an error message (I think).
+However, it sort of gets in the way of some default org-mode keybindings, so
+we'll disable it for that particular major-mode.  I also do not want it running
+in LaTeX-mode either
+
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :ensure t
+  :init
+  (global-flycheck-mode)
+  (setq flycheck-global-modes '(not org-mode)))
 #+END_SRC
 
 * Productivity
@@ -400,6 +396,9 @@ While we're at it, kill unmodified buffers without asking for confirmation.
      (kill-buffer (current-buffer))))
 #+END_SRC
 ** Org-Mode
+I use org-mode to organize just about everything I do - in fact, the more I use
+Emacs, the more I find myself wanting to integrate things into it.  I obviously
+use org-mode to configure Emacs as well.
 #+BEGIN_SRC emacs-lisp
 (use-package org
   :ensure t
@@ -409,9 +408,12 @@ While we're at it, kill unmodified buffers without asking for confirmation.
         org-src-strip-leading-and-trailing-blank-lines t
         org-src-preserve-indentation t
         org-src-tab-acts-natively t)
-  (add-hook 'org-mode-hook 'my-auto-fill-mode))
+  ;; set up my personal workflow items
+  (setq org-todo-keywords
+        '((sequence "TODO" "STARTED" "WAITING" "|" "ABANDONED" "DONE")))
+  ;; track everything in this directory for the agenda
+  (setq org-agenda-files '("~/org")))
 #+END_SRC
-
 ** ERC
 I use IRC quite a bit, pretty much just on Freenode. Unfortunately, the main
 network at the office blocks IRC traffic, so this only works from a network
@@ -458,7 +460,20 @@ are.  I should like to encrypt those instead of storing them in plain text.
       (erc-track-switch-buffer 1)
     (when (y-or-n-p "Start ERC? ")
       (erc :server "irc.freenode.net" :port 6667
-	   :nick "username" :password "password"))))
+	   :nick "gmcastil" :password "IRC_314*"))))
+#+END_SRC
+** Mutt
+I use [[http://www.mutt.org/][Mutt]] as my email client, but I still like to use Emacs to edit my
+messages.
+#+BEGIN_SRC emacs-lisp
+;; very nice font-locking package for editing muttrc files
+(use-package muttrc-mode
+  :ensure t)
+;; depending upon how you have mutt configured, this may or may not be the
+;; right string to use for temporary mail messages
+(add-to-list 'auto-mode-alist '("/tmp/mutt" . mail-mode))
+;; depending upon where your config files are, this may need to be modified
+(add-to-list 'auto-mode-alist '("muttrc" . muttrc-mode))
 #+END_SRC
 * Global Keybinds
 
@@ -479,13 +494,18 @@ Join ERC from anywhere.
 (global-set-key (kbd "C-c e") 'join-erc)
 #+END_SRC
 ** Org-Mode
-Also, here are some global key bindings that integrate really well with
-org-mode
-
+Also, here are some global key bindings that are usually assumed to be present
+with org-mode
 #+BEGIN_SRC emacs-lisp
 (bind-key "C-c l" 'org-store-link)
 (bind-key "C-c c" 'org-capture)
 (bind-key "C-c a" 'org-agenda)
+#+END_SRC
+
+For managing timestamps, also use these
+#+BEGIN_SRC emacs-lisp
+(bind-key "C-c ." 'org-time-stamp)
+(bind-key "C-c !" 'org-time-stamp-inactive)
 #+END_SRC
 
 ** Window
@@ -541,20 +561,11 @@ it by hand for ages now and don't know why I waited this long to fix it.
 * Things to Include
 
 A few things that still need to be done:
-** DONE Enable pylint to check Python buffers
-This should work out of the box now
 ** TODO Configure VHDL mode
 ** TODO Configure Verilog mode
 ** TODO Configure verilator to work with flycheck for verilog syntax checking
 ** TODO Yasnippets and Verilog / VHDL / Systemverilog
-** TODO Configure support for editing of emails using Mutt
-This is likely just using emacsclient commands in $HOME/.mutt/muttrc
-** DONE Code folding in Python files
-** DONE Configure ERC
-This seems to be working - not a huge fan of the colors though
 ** TODO Add encryption to ERC passwords
-** TODO Org-mode should always open org files fully collapsed
-** TODO Tell org-mode where to find agenda files
 ** TODO Enable flyspell in all programming comments using something like this
 Also, can enable spell-checking in code comments
 ** TODO Try to configure pylint's output
@@ -564,3 +575,4 @@ I think this is like pylint --msg-template or soemthing
 # #+BEGIN_SRC emacs-lisp
 # (add-hook 'prog-mode-hook 'flyspell-prog-mode)
 # #+END_SRC
+** TODO Make mail-mode save automatically fill the region and not ask to save
