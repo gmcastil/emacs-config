@@ -408,6 +408,7 @@ use org-mode to configure Emacs as well.
         org-src-strip-leading-and-trailing-blank-lines t
         org-src-preserve-indentation t
         org-src-tab-acts-natively t)
+  (setq org-log-done 'time)
   ;; set up my personal workflow items
   (setq org-todo-keywords
         '((sequence "TODO" "STARTED" "WAITING" "|" "ABANDONED" "DONE")))
