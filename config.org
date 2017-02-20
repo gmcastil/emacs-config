@@ -461,7 +461,7 @@ are.  I should like to encrypt those instead of storing them in plain text.
       (erc-track-switch-buffer 1)
     (when (y-or-n-p "Start ERC? ")
       (erc :server "irc.freenode.net" :port 6667
-	   :nick "gmcastil" :password "IRC_314*"))))
+	   :nick "username" :password "password"))))
 #+END_SRC
 ** Mutt
 I use [[http://www.mutt.org/][Mutt]] as my email client, but I still like to use Emacs to edit my
