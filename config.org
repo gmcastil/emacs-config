@@ -411,7 +411,7 @@ use org-mode to configure Emacs as well.
   (setq org-log-done 'time)
   ;; set up my personal workflow items
   (setq org-todo-keywords
-        '((sequence "TODO" "STARTED" "WAITING" "|" "ABANDONED" "DONE")))
+        '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "ABANDONED")))
   ;; track everything in this directory for the agenda
   (setq org-agenda-files '("~/org")))
 #+END_SRC
