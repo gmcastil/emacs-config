@@ -333,7 +333,33 @@ Python load-path.
 ** VHDL
 - Auto-fill by default
 ** Verilog
-- Auto-fill by default
+Set some suggested defaults for Verilog and SystemVerilog
+#+BEGIN_SRC emacs-lisp
+(setq verilog-indent-level             3
+      verilog-indent-level-module      3
+      verilog-indent-level-declaration 3
+      verilog-indent-level-behavioral  3
+      verilog-indent-level-directive   1
+      verilog-case-indent              2
+      verilog-auto-newline             t
+      verilog-auto-indent-on-newline   t
+      verilog-tab-always-indent        t
+      verilog-auto-endcomments         t
+      verilog-minimum-comment-distance 40
+      verilog-indent-begin-after-if    t
+      verilog-auto-lineup              'declarations
+      verilog-highlight-p1800-keywords nil
+      verilog-linter                   "verilator")
+
+(setq flycheck-verilog-verilator-executable "invoke-verilator.sh")
+#+END_SRC
+This last command is a workaround for [[https://github.com/flycheck/flycheck/issues/740][this issue]] when using verilator with
+flycheck.  Make sure that a shell script called `invoke-verilator.sh' is in the
+path and that it is made executable.
+#+BEGIN_SRC shell
+#!/bin/bash
+exec /usr/bin/verilator "$@"
+#+END_SRC
 ** C
 Set the indention style when in C mode
 #+BEGIN_SRC emacs-lisp
