@@ -76,9 +76,9 @@ vertically, which I find a little unsightly.  The official release is at
 [[https://fonts.google.com/specimen/Inconsolata][Google fonts]] and official upstream is on [[https://github.com/google/fonts/tree/master/ofl/inconsolata][github]].
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute 'default nil
-                    :family "Anonymous Pro" :height 120)
+                    :family "Inconsolata" :height 120)
 (set-face-attribute 'font-lock-comment-face nil
-                    :family "Anonymous Pro" :height 110)
+                    :family "Inconsolata" :height 120)
 #+END_SRC
 If Anonymous Pro is not installed on the machine, loading the config will likely hang here or when redefining the modeline
 
