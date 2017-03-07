@@ -335,10 +335,10 @@ Python load-path.
 ** Verilog
 Set some suggested defaults for Verilog and SystemVerilog
 #+BEGIN_SRC emacs-lisp
-(setq verilog-indent-level             3
-      verilog-indent-level-module      3
-      verilog-indent-level-declaration 3
-      verilog-indent-level-behavioral  3
+(setq verilog-indent-level             2
+      verilog-indent-level-module      2
+      verilog-indent-level-declaration 2
+      verilog-indent-level-behavioral  2
       verilog-indent-level-directive   1
       verilog-case-indent              2
       verilog-auto-newline             t
@@ -605,8 +605,6 @@ it by hand for ages now and don't know why I waited this long to fix it.
 
 A few things that still need to be done:
 ** TODO Configure VHDL mode
-** TODO Configure Verilog mode
-** TODO Configure verilator to work with flycheck for verilog syntax checking
 ** TODO Yasnippets and Verilog / VHDL / Systemverilog
 ** TODO Add encryption to ERC passwords
 ** TODO Enable flyspell in all programming comments using something like this
