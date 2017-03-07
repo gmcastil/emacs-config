@@ -445,7 +445,7 @@ use org-mode to configure Emacs as well.
   (setq org-log-done 'time)
   ;; set up my personal workflow items
   (setq org-todo-keywords
-        '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "ABANDONED")))
+        '((sequence "TODO" "STARTED" "WAITING" "READ" "|" "DONE" "ABANDONED")))
   ;; track everything in this directory for the agenda
   (setq org-agenda-files '("~/org")))
 #+END_SRC
@@ -509,6 +509,14 @@ messages.
 (add-to-list 'auto-mode-alist '("/tmp/mutt" . mail-mode))
 ;; depending upon where your config files are, this may need to be modified
 (add-to-list 'auto-mode-alist '("muttrc" . muttrc-mode))
+#+END_SRC
+* Editing
+Yes, Emacs is occasionally used for mundane tasks like editing text.
+** Markdown Mode
+#+BEGIN_SRC emacs-lisp
+Add support for `markdown-mode`.
+(use-package markdown-mode
+  :ensure t)
 #+END_SRC
 * Global Keybinds
 
