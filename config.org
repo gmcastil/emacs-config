@@ -513,8 +513,8 @@ messages.
 * Editing
 Yes, Emacs is occasionally used for mundane tasks like editing text.
 ** Markdown Mode
-#+BEGIN_SRC emacs-lisp
 Add support for `markdown-mode`.
+#+BEGIN_SRC emacs-lisp
 (use-package markdown-mode
   :ensure t)
 #+END_SRC
