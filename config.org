@@ -393,7 +393,10 @@ whatever.
 #+BEGIN_SRC emacs-lisp
 ;; turning on AC everywhere only turns it on in modes listed in `ac-modes`
 (setq ac-modes '(verilog-mode python-mode))
-(global-auto-complete-mode t)
+(use-package auto-complete
+  :ensure  t
+  :init
+  (setq global-auto-complete-mode t))
 #+END_SRC
 ** Ido
 Interactively do things with buffers and files.  Also enable
