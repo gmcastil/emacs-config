@@ -510,6 +510,15 @@ messages.
 ;; depending upon where your config files are, this may need to be modified
 (add-to-list 'auto-mode-alist '("muttrc" . muttrc-mode))
 #+END_SRC
+** LaTeX
+I do a lot of work that eventually reduces to spitting out some files in LaTeX.
+These sections make it work like I want.
+#+BEGIN_SRC emacs-lisp
+(use-package tex
+  :ensure auctex
+  :init
+  (setq-default TeX-engine 'xetex))
+#+END_SRC
 * Editing
 Yes, Emacs is occasionally used for mundane tasks like editing text.
 ** Markdown Mode
