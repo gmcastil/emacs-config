@@ -76,9 +76,9 @@ vertically, which I find a little unsightly.  The official release is at
 [[https://fonts.google.com/specimen/Inconsolata][Google fonts]] and official upstream is on [[https://github.com/google/fonts/tree/master/ofl/inconsolata][github]].
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute 'default nil
-                    :family "Inconsolata" :height 120)
+                    :family "Anonymous Pro" :height 120)
 (set-face-attribute 'font-lock-comment-face nil
-                    :family "Inconsolata" :height 120)
+                    :family "Anonymous Pro" :height 120)
 #+END_SRC
 If Anonymous Pro is not installed on the machine, loading the config will likely hang here or when redefining the modeline
 
@@ -369,6 +369,14 @@ Set the indention style when in C mode
   (setq c-default-style "k&r"))
 #+END_SRC
 
+** TCL
+Most of the widely uesd EDA tools all support scripting using the Tool Command
+Language.
+
+#+BEGIN_SRC emacs-lisp
+(use-package tcl-mode
+  :ensure t)
+#+END_SRC
 ** Flycheck
 Flycheck is great for performing syntax checking, but it is not very flexibile
 when it comes to determining when and when not to invoke its phenomenal cosmic
@@ -392,7 +400,7 @@ Why this isn't enabled by default in all programming modes mystefies me, but
 whatever.
 #+BEGIN_SRC emacs-lisp
 ;; turning on AC everywhere only turns it on in modes listed in `ac-modes`
-(setq ac-modes '(verilog-mode python-mode))
+(setq ac-modes '(verilog-mode python-mode tcl-mode))
 (use-package auto-complete
   :ensure  t
   :init
