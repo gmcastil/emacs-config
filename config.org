@@ -352,6 +352,8 @@ Set some suggested defaults for Verilog and SystemVerilog
       verilog-linter                   "verilator")
 
 (setq flycheck-verilog-verilator-executable "invoke-verilator.sh")
+(add-to-list 'auto-mode-alist '("\\.veo$" . verilog-mode))
+(add-to-list 'auto-mode-alist '("\\.vho$" . vhdl-mode))
 #+END_SRC
 This last command is a workaround for [[https://github.com/flycheck/flycheck/issues/740][this issue]] when using verilator with
 flycheck.  Make sure that a shell script called `invoke-verilator.sh' is in the
