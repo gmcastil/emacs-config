@@ -21,6 +21,13 @@ somewhere else is probably a good idea.
     (load custom-file))
 #+END_SRC
 
+Also set my username and email address for this configuration (if you are using
+this configuration, you'll need to set these for whatever yours is.)
+#+BEGIN_SRC emacs-lisp
+(setq user-mail-address "username@domain")
+(setq user-full-name "Full Name")
+#+END_SRC
+
 * Appearance
 
 Turn off a lot of the default stuff that just ends up occupying a lot of screen
