@@ -362,6 +362,30 @@ path and that it is made executable.
 #!/bin/bash
 exec /usr/bin/verilator "$@"
 #+END_SRC
+For personal projects, I prefer a simple header block to help organize each module.
+#+BEGIN_SRC emacs-lisp
+(define-skeleton my-verilog-sk-header-tmpl
+  "Insert a customized comment block containing module title, name, etc."
+  "[Description]: "
+  "// ----------------------------------------------------------------------------"
+  "\n// Module:  " (buffer-name)
+  "\n// Project: "
+  "\n// Author:  " (insert (user-full-name)) " <" user-mail-address "> "
+  "\n// Date:    " (format-time-string "%d %B %Y")
+  "\n//"
+  "\n// Description:"
+  "\n// "
+  "\n// ----------------------------------------------------------------------------"\n)
+
+(eval-after-load "verilog-mode"
+  '(defun verilog-sk-header ()
+     "Insert a descriptive header at the top of the file.
+See also `verilog-header' for an alternative format."
+     (interactive "*")
+     (save-excursion
+       (goto-char (point-min))
+       (my-verilog-sk-header-tmpl))))
+#+END_SRC
 ** C
 Set the indention style when in C mode
 #+BEGIN_SRC emacs-lisp
