@@ -362,10 +362,12 @@ Set some suggested defaults for Verilog and SystemVerilog
 #+END_SRC
 This last command is a workaround for [[https://github.com/flycheck/flycheck/issues/740][this issue]] when using verilator with
 flycheck.  Make sure that a shell script called `invoke-verilator.sh' is in the
-path and that it is made executable.
+path and that it is made executable.  Note that this script points at the Vivado
+installation tree.  The `-I` switch allows for the resolution of Xilinx
+primitives, which is pretty awesome.
 #+BEGIN_SRC shell
 #!/bin/bash
-exec /usr/bin/verilator "$@"
+exec /usr/bin/verilator -I /opt/Xilinx/Vivado/2017.1/data/ "$@"
 #+END_SRC
 For personal projects, I prefer a simple header block to help organize each module.
 #+BEGIN_SRC emacs-lisp
