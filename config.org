@@ -697,6 +697,11 @@ same time. Not sure why this isn't default behavior.
 (bind-key "C-x 3" 'hsplit-other-window)
 #+END_SRC
 
+** Magit Mode
+Some keybinds for using Magit-mode
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c g") 'magit-status)
+#+END_SRC
 * Other
 
 Start up the Emacs server so that other applications, notably Mutt can find it
