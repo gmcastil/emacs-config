@@ -23,7 +23,7 @@ somewhere else is probably a good idea.
 
 Also set my username and email address for this configuration
 #+BEGIN_SRC emacs-lisp
-(setq user-mail-address "username@domain")
+(setq user-mail-address "email_address")
 (setq user-full-name "Full Name")
 #+END_SRC
 * Appearance
@@ -362,12 +362,10 @@ Set some suggested defaults for Verilog and SystemVerilog
 #+END_SRC
 This last command is a workaround for [[https://github.com/flycheck/flycheck/issues/740][this issue]] when using verilator with
 flycheck.  Make sure that a shell script called `invoke-verilator.sh' is in the
-path and that it is made executable.  Note that this script points at the Vivado
-installation tree.  The `-I` switch allows for the resolution of Xilinx
-primitives, which is pretty awesome.
+path and that it is made executable.
 #+BEGIN_SRC shell
 #!/bin/bash
-exec /usr/bin/verilator -I /opt/Xilinx/Vivado/2017.1/data/ "$@"
+exec /usr/bin/verilator "$@"
 #+END_SRC
 For personal projects, I prefer a simple header block to help organize each module.
 #+BEGIN_SRC emacs-lisp
@@ -405,6 +403,10 @@ Set the indention style when in C mode
 ** TCL
 Most of the widely uesd EDA tools all support scripting using the Tool Command
 Language.
+#+BEGIN_SRC emacs-lisp
+(setq tcl-indent-level 3)
+(setq tcl-continued-indent-level 3)
+#+END_SRC
 ** Flycheck
 Flycheck is great for performing syntax checking, but it is not very flexibile
 when it comes to determining when and when not to invoke its phenomenal cosmic
@@ -598,7 +600,7 @@ are.  I should like to encrypt those instead of storing them in plain text.
       (erc-track-switch-buffer 1)
     (when (y-or-n-p "Start ERC? ")
       (erc :server "irc.freenode.net" :port 6667
-	   :nick "username" :password "password"))))
+	   :nick "nick" :password "password"))))
 #+END_SRC
 ** Mutt
 I use [[http://www.mutt.org/][Mutt]] as my email client, but I still like to use Emacs to edit my
@@ -635,8 +637,13 @@ Add support for `markdown-mode`.
 (use-package markdown-mode
   :ensure t)
 #+END_SRC
+** Multiple Cursors
+#+BEGIN_SRC emacs-lisp
+(use-package multiple-cursors
+  :ensure t
+  :init)
+#+END_SRC
 * Global Keybinds
-
 Having rewritten the function used for quitting, we remap the keybind for
 quitting Emacs.
 #+BEGIN_SRC emacs-lisp
@@ -647,6 +654,20 @@ Also, remap the keybind for killing buffers so that we do not have to get
 confirmation for killing unmodified buffers.
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-x k") 'volatile-kill-buffer)
+#+END_SRC
+
+Some keybinds for using Magit-mode
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-c g") 'magit-status)
+#+END_SRC
+
+And add the basic keybinds used by [[https://github.com/magnars/multiple-cursors.el][multiple-cursors]].  These are pretty awesome
+and make editing things like port maps and signal definitions much more rapidly.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 #+END_SRC
 ** ERC
 Join ERC from anywhere.
@@ -669,8 +690,7 @@ For managing timestamps, also use these
 #+END_SRC
 
 ** Window
-Convenient keybindings to resize windows.
-
+Some convenient keybindings to resize windows.
 #+BEGIN_SRC emacs-lisp
 (bind-key "s-C-<left>"  'shrink-window-horizontally)
 (bind-key "s-C-<right>" 'enlarge-window-horizontally)
@@ -697,11 +717,6 @@ same time. Not sure why this isn't default behavior.
 (bind-key "C-x 3" 'hsplit-other-window)
 #+END_SRC
 
-** Magit Mode
-Some keybinds for using Magit-mode
-#+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-c g") 'magit-status)
-#+END_SRC
 * Other
 
 Start up the Emacs server so that other applications, notably Mutt can find it
