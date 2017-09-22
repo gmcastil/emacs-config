@@ -401,7 +401,7 @@ Set the indention style when in C mode
 #+END_SRC
 
 ** TCL
-Most of the widely uesd EDA tools all support scripting using the Tool Command
+Most of the widely used EDA tools all support scripting using the Tool Command
 Language.
 #+BEGIN_SRC emacs-lisp
 (setq tcl-indent-level 3)
